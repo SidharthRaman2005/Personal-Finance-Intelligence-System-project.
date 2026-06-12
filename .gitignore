@@ -1,0 +1,55 @@
+# OS and editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Environment and secrets
+.env
+.env.*
+*.local
+*.secret
+*.secrets
+*.pem
+*.key
+
+# Java / Maven / Spring Boot
+**/target/
+**/.mvn/wrapper/maven-wrapper.jar
+**/build/
+**/.gradle/
+
+# Java generated/temporary
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+
+# Node / frontend
+**/node_modules/
+**/dist/
+**/build/
+**/.vite/
+**/coverage/
+**/.eslintcache
+
+# Test outputs
+**/surefire-reports/
+**/test-output/
+
+# Package manager
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+
+# Misc
+*.tmp
+*.temp
