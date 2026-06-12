@@ -31,6 +31,8 @@ logs/
 *.war
 *.ear
 hs_err_pid*
+*.mv.db
+*.trace.db
 
 # Node / frontend
 **/node_modules/
