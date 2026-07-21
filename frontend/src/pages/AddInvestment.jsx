@@ -55,8 +55,8 @@ export default function AddInvestment() {
       return;
     }
 
-    if (!Number.isFinite(investedAmount) || investedAmount < 0) {
-      setError("Enter a valid invested amount (0 or higher).");
+    if (!Number.isFinite(investedAmount) || investedAmount <= 0) {
+      setError("Enter a valid invested amount greater than 0.");
       return;
     }
 
@@ -159,6 +159,8 @@ export default function AddInvestment() {
               className="field"
               type="number"
               placeholder="0"
+              min="0.01"
+              step="0.01"
               value={form.investedAmount}
               onChange={(event) => updateField("investedAmount", event.target.value)}
             />

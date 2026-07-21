@@ -208,8 +208,8 @@ public class InvestmentService {
         if (investedAmount == null) {
             throw new RuntimeException("Invested amount is required");
         }
-        if (investedAmount < 0) {
-            throw new RuntimeException("Amounts cannot be negative");
+        if (investedAmount <= 0) {
+            throw new RuntimeException("Invested amount must be greater than 0");
         }
     }
 

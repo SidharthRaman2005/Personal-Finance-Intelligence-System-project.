@@ -332,36 +332,6 @@ export default function MonthlyReport() {
               </div>
             </div>
 
-            <div className="panel panel-pad report-section">
-              <div className="row">
-                <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Goal progress</h2>
-                <span className="dim">Savings targets</span>
-              </div>
-              {report.goals?.length ? (
-                <div className="report-progress-list">
-                  {report.goals.map((goal) => (
-                    <div key={goal.id || goal.goalName} className="report-progress-item">
-                      <div className="row">
-                        <span>{goal.goalName}</span>
-                        <span className="value">{Number(goal.progressPercentage || 0).toFixed(0)}%</span>
-                      </div>
-                      <div className="progress-track">
-                        <div
-                          className="progress-fill"
-                          style={{ width: `${Math.min(100, Number(goal.progressPercentage || 0))}%` }}
-                        />
-                      </div>
-                      <div className="item-meta">
-                        {money(goal.currentAmount)} saved of {money(goal.targetAmount)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="note">No goals created yet.</p>
-              )}
-            </div>
-
             <div className="report-split">
               <div className="panel panel-pad report-section">
                 <div className="row">

@@ -18,9 +18,7 @@ export default function Dashboard() {
   const [health, setHealth] = useState(null);
   const [insights, setInsights] = useState([]);
   const [budgetInput, setBudgetInput] = useState("");
-  const [goalContributionById, setGoalContributionById] = useState({});
   const [budgetSaving, setBudgetSaving] = useState(false);
-  const [goalFundingId, setGoalFundingId] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [refreshTick, setRefreshTick] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -36,6 +34,7 @@ export default function Dashboard() {
     { label: "Investments", path: "/investments" },
     { label: "Goals", path: "/goals" },
     { label: "Monthly report", path: "/reports/monthly" },
+    { label: "Use AI", path: "/use-ai" },
     { label: "Add Expense", path: "/add-expense" },
     { label: "Add Income", path: "/add-income" },
     { label: "Upload CSV", path: "/upload-csv" },
@@ -134,44 +133,6 @@ export default function Dashboard() {
       setError("Unable to save budget. Please try again.");
     } finally {
       setBudgetSaving(false);
-    }
-  };
-
-  const handleAddMoneyToGoal = async (goal) => {
-    const goalId = goal.id;
-    const amount = Number(goalContributionById[goalId] || 0);
-
-    if (!goalId) {
-      setError("Goal ID missing. Please refresh and try again.");
-      return;
-    }
-
-    if (!Number.isFinite(amount) || amount <= 0) {
-      setError("Enter a valid amount greater than 0 to add money.");
-      return;
-    }
-
-    try {
-      setGoalFundingId(goalId);
-      setError("");
-      setSuccessMessage("");
-
-      const response = await fetch(
-        `http://localhost:8080/api/goals/${goalId}/add-money?amount=${amount}`,
-        { method: "POST" }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to add money to goal");
-      }
-
-      setGoalContributionById((prev) => ({ ...prev, [goalId]: "" }));
-      setSuccessMessage(`Added ${money(amount)} to ${goal.goalName}.`);
-      setRefreshTick((value) => value + 1);
-    } catch (err) {
-      setError("Unable to add money to goal. Please try again.");
-    } finally {
-      setGoalFundingId(null);
     }
   };
 
@@ -360,7 +321,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <button className="btn btn-ghost" type="button" onClick={() => navigate("/details")}>Open detailed insights</button>
         </div>
       </div>
 
@@ -424,14 +384,13 @@ export default function Dashboard() {
             </div>
 
             {goals.length === 0 ? (
-              <p className="note">Create a goal first, then add money to it here.</p>
+              <p className="note">Create a goal first to track its progress here.</p>
             ) : (
               goals.map((goal) => {
-                const goalId = goal.id;
                 const progress = Math.max(0, Math.min(100, Number(goal.progressPercentage || 0)));
 
                 return (
-                  <div className="goal-item" key={goalId || goal.goalName}>
+                  <div className="goal-item" key={goal.id || goal.goalName}>
                     <div className="row">
                       <span>{goal.goalName}</span>
                       <span className="value">{progress.toFixed(0)}%</span>
@@ -441,30 +400,6 @@ export default function Dashboard() {
                     </div>
                     <div className="item-meta">
                       {money(goal.currentAmount)} saved of {money(goal.targetAmount)}
-                    </div>
-
-                    <div className="actions-wrap">
-                      <input
-                        type="number"
-                        className="field"
-                        style={{ flex: 1, minWidth: "140px" }}
-                        placeholder="Add amount"
-                        value={goalContributionById[goalId] ?? ""}
-                        onChange={(event) =>
-                          setGoalContributionById((prev) => ({
-                            ...prev,
-                            [goalId]: event.target.value,
-                          }))
-                        }
-                      />
-                      <button
-                        className="btn btn-secondary"
-                        type="button"
-                        disabled={goalFundingId === goalId}
-                        onClick={() => handleAddMoneyToGoal(goal)}
-                      >
-                        {goalFundingId === goalId ? "Adding..." : "Add Money"}
-                      </button>
                     </div>
                   </div>
                 );
@@ -495,14 +430,6 @@ export default function Dashboard() {
                 <div className="row">
                   <span className="dim">Diversification</span>
                   <span className="value">{diversification.toFixed(0)}%</span>
-                </div>
-                <div className="actions-wrap">
-                  <button className="btn btn-ghost" type="button" onClick={() => navigate("/investment-analysis")}>
-                    View analysis
-                  </button>
-                  <button className="btn btn-secondary" type="button" onClick={() => navigate("/add-investment")}>
-                    Add investment
-                  </button>
                 </div>
               </>
             ) : (

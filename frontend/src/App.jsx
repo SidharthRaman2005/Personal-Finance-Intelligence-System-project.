@@ -15,6 +15,7 @@ const AddInvestment = lazy(() => import("./pages/AddInvestment"));
 const InvestmentAnalysis = lazy(() => import("./pages/InvestmentAnalysis"));
 const Goals = lazy(() => import("./pages/Goals"));
 const MonthlyReport = lazy(() => import("./pages/MonthlyReport"));
+const UseAI = lazy(() => import("./pages/UseAI"));
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -56,6 +57,7 @@ function App() {
             <Route path="/investment-analysis" element={<ProtectedRoute><InvestmentAnalysis /></ProtectedRoute>} />
             <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
             <Route path="/reports/monthly" element={<ProtectedRoute><MonthlyReport /></ProtectedRoute>} />
+            <Route path="/use-ai" element={<ProtectedRoute><UseAI /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

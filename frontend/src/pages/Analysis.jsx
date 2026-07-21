@@ -53,7 +53,7 @@ export default function Analysis() {
     return () => controller.abort();
   }, [navigate, threshold]);
 
-  const money = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
+  const money = (value) => `₹${Math.round(Number(value || 0)).toLocaleString("en-IN")}`;
 
   const hidden = analysis?.hiddenExpenseDetector;
   const twin = analysis?.financialTwinSimulator;
@@ -74,7 +74,7 @@ export default function Analysis() {
     },
     {
       title: "Percentage of Spending",
-      value: `${microShare.toFixed(1)}%`,
+      value: `${microShare.toFixed(0)}%`,
       hint: "Share of current month expenses",
     },
   ];
@@ -83,7 +83,7 @@ export default function Analysis() {
     {
       title: twin?.currentPath?.scenario || "Current Path",
       value: money(twin?.currentPath?.fiveYearSavings),
-      subtitle: "Savings after 5 years",
+      subtitle: "Based on your current monthly pattern",
       years: [
         { label: "1 year", value: twin?.currentPath?.oneYearSavings },
         { label: "3 years", value: twin?.currentPath?.threeYearSavings },
@@ -93,30 +93,21 @@ export default function Analysis() {
     {
       title: twin?.optimizedPath?.scenario || "Optimized Path",
       value: money(twin?.optimizedPath?.fiveYearSavings),
-      subtitle: "Savings after 5 years",
+      subtitle: "Assumes 10% lower expenses",
       years: [
         { label: "1 year", value: twin?.optimizedPath?.oneYearSavings },
         { label: "3 years", value: twin?.optimizedPath?.threeYearSavings },
         { label: "5 years", value: twin?.optimizedPath?.fiveYearSavings },
       ],
     },
-    {
-      title: twin?.savingsGrowthPath?.scenario || "Savings Growth Path",
-      value: money(twin?.savingsGrowthPath?.fiveYearSavings),
-      subtitle: "Savings after 5 years",
-      years: [
-        { label: "1 year", value: twin?.savingsGrowthPath?.oneYearSavings },
-        { label: "3 years", value: twin?.savingsGrowthPath?.threeYearSavings },
-        { label: "5 years", value: twin?.savingsGrowthPath?.fiveYearSavings },
-      ],
-    },
   ];
 
-  const projectionRows = twin?.projectionSeries || [];
   const savingsGain = Number(twin?.projectedGainFromOptimization || 0);
   const averageIncome = Number(twin?.averageMonthlyIncome || 0);
   const averageExpense = Number(twin?.averageMonthlyExpense || 0);
   const averageSavings = Number(twin?.averageMonthlySavings || 0);
+  const projectionBasisNote =
+    "Projections use your average monthly income, expenses, and savings. The optimized path assumes expenses are reduced by 10%.";
 
   const applyThreshold = () => {
     const parsed = Number(thresholdInput);
@@ -131,7 +122,7 @@ export default function Analysis() {
         <div>
           <p className="eyebrow">Insights</p>
           <h1 className="title">Financial intelligence center</h1>
-          <p className="subtitle">Hidden spending detection, long-range projections, and behavioral guidance in one place.</p>
+          <p className="subtitle">Focused analysis for hidden spending, savings behavior, and future projection data.</p>
         </div>
 
         <div className="analysis-toolbar">
@@ -165,8 +156,8 @@ export default function Analysis() {
 
       {error ? <div className="panel panel-pad note">{error}</div> : null}
 
-      <div className="analysis-stack">
-        <section className="panel panel-pad stack">
+      <section className="panel panel-pad stack analysis-sheet">
+        <div className="stack">
           <div className="row">
             <div>
               <h2 style={{ margin: 0, fontSize: "1.15rem" }}>Hidden Expense Detector</h2>
@@ -193,7 +184,7 @@ export default function Analysis() {
 
               <div className="row">
                 <span className="dim">Micro-spending share</span>
-                <span className={microTone}>{microShare.toFixed(1)}%</span>
+                <span className={microTone}>{microShare.toFixed(0)}%</span>
               </div>
 
               <div className="grid-2">
@@ -217,7 +208,7 @@ export default function Analysis() {
                       <div className="item" key={item.category}>
                         <div>
                           <div style={{ textTransform: "capitalize" }}>{item.category}</div>
-                          <div className="item-meta">{item.percent.toFixed(1)}% of micro-spending</div>
+                          <div className="item-meta">{item.percent.toFixed(0)}% of micro-spending</div>
                         </div>
                         <div className="value">{money(item.amount)}</div>
                       </div>
@@ -229,22 +220,24 @@ export default function Analysis() {
               </div>
 
               <div className="panel panel-pad note" style={{ margin: 0 }}>
-                Micro spending accounts for {microShare.toFixed(1)}% of this month&apos;s total expenses.
+                Micro spending accounts for {microShare.toFixed(0)}% of this month&apos;s total expenses.
               </div>
             </>
           ) : null}
-        </section>
+        </div>
 
-        <section className="panel panel-pad stack">
+        <div className="analysis-divider" />
+
+        <div className="stack">
           <div className="row">
             <div>
               <h2 style={{ margin: 0, fontSize: "1.15rem" }}>Financial Twin Simulator</h2>
-              <p className="subtitle" style={{ marginBottom: 0 }}>
-                Projection engine based on your observed monthly behavior.
-              </p>
+              <p className="subtitle" style={{ marginBottom: 0 }}>Projection engine based on your monthly behavior.</p>
             </div>
             <span className="dim">1, 3, and 5 year outlook</span>
           </div>
+
+          <p className="note note-tight">{projectionBasisNote}</p>
 
           {loading ? (
             <p className="note">Building future projections...</p>
@@ -285,77 +278,43 @@ export default function Analysis() {
                 ))}
               </div>
 
-              <div className="grid-2">
+              <div className="grid-2 projection-summary">
                 <div className="panel panel-pad stack">
                   <div className="row">
-                    <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Current Strategy</h3>
-                    <span className="dim">Baseline</span>
+                    <h3 style={{ margin: 0, fontSize: "1.05rem" }}>5-year baseline</h3>
+                    <span className="dim">Current pattern</span>
                   </div>
                   <div className="metric-value">{money(twin.currentPath?.fiveYearSavings)}</div>
-                  <p className="note" style={{ margin: 0 }}>{twin.currentStrategyInsight}</p>
+                  <p className="note note-tight" style={{ margin: 0 }}>{twin.currentStrategyInsight}</p>
                 </div>
                 <div className="panel panel-pad stack">
                   <div className="row">
-                    <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Improved Strategy</h3>
-                    <span className="dim">Reduce expenses by 10%</span>
+                    <h3 style={{ margin: 0, fontSize: "1.05rem" }}>5-year optimized</h3>
+                    <span className="dim">10% lower expenses</span>
                   </div>
                   <div className="metric-value">{money(twin.optimizedPath?.fiveYearSavings)}</div>
-                  <p className="note" style={{ margin: 0 }}>{twin.improvedStrategyInsight}</p>
+                  <p className="note note-tight" style={{ margin: 0 }}>{twin.improvedStrategyInsight}</p>
                 </div>
               </div>
 
-              <div className="panel panel-pad stack">
+              <div className="panel panel-pad stack compact-summary">
                 <div className="row">
-                  <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Current Strategy vs Improved Strategy</h3>
-                  <span className="dim">Future-ready comparison data</span>
+                  <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Optimization gain</h3>
+                  <span className="dim">5-year difference</span>
                 </div>
-
-                {projectionRows.length ? (
-                  <div className="table-wrap">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Horizon</th>
-                          <th className="right">Current strategy</th>
-                          <th className="right">Improved strategy</th>
-                          <th className="right">Savings growth</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {projectionRows.map((row) => (
-                          <tr key={row.year}>
-                            <td>{row.year} year{row.year > 1 ? "s" : ""}</td>
-                            <td className="right">{money(row.currentPathSavings)}</td>
-                            <td className="right">{money(row.optimizedPathSavings)}</td>
-                            <td className="right">{money(row.savingsGrowthPathSavings)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : null}
-
-                <div className="note" style={{ margin: 0 }}>
-                  {twin.currentStrategyInsight}
-                  <br />
-                  {twin.improvedStrategyInsight}
-                  <br />
-                  Projected gain from optimization over 5 years: {money(savingsGain)}
+                <div className="summary-stat">
+                  <span className="dim">Projected gain</span>
+                  <span className="value">{money(savingsGain)}</span>
+                </div>
+                <div className="summary-stat">
+                  <span className="dim">Current vs optimized gap</span>
+                  <span className="value">{money(Number(twin.optimizedPath?.fiveYearSavings || 0) - Number(twin.currentPath?.fiveYearSavings || 0))}</span>
                 </div>
               </div>
             </>
           ) : null}
-        </section>
-      </div>
-    </div>
-  );
-}
-
-function CardLike({ title, value, color = "" }) {
-  return (
-    <div className={`metric-card ${color}`}>
-      <div className="metric-title">{title}</div>
-      <div className="metric-value">{value}</div>
+        </div>
+      </section>
     </div>
   );
 }
